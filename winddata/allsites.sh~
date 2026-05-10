@@ -1,0 +1,43 @@
+#!/bin/bash
+FILES=*.CSV
+for f in $FILES
+	do
+  
+	rm file.dat
+	echo $f > file.dat
+        cut -d"," -f3 $f >AAA.dat
+	lat=$(grep LAT $f)
+echo -n "LAT=" $lat >rms${f:4:6}.dat
+echo >>rms${f:4:6}.dat
+echo -n "# time     rms " >> rms${f:4:6}.dat
+
+
+for k in {0..73}; do
+  
+   xv=$(($k*2160)); echo $xv >> xv
+   lb=$(($xv+4320+4))
+   le=$(($xv+4320+103))
+   sed -n "${lb},${le}p" AAA.dat|awk '{print $1}' > wlc$(($xv+4320)).o
+   lfo-run -l$(($xv+4320)) -x3 -m1,36 -d22 -L100 -k3200 AAA.dat  -o wlc$(($xv+4320)).p
+   cp wlc$(($xv+4320)).p wlc.p
+   cp wlc$(($xv+4320)).o wlc.o
+   echo >>rms${f:4:6}.dat
+   echo -n  $(($xv+4320))  "  " >> rms${f:4:6}.dat
+   ./myrms >> rms${f:4:6}.dat
+   rm wlc$(($xv+4320)).p
+   rm wlc$(($xv+4320)).o
+
+   rm wlc.p
+   rm wlc.o
+   
+done
+
+done
+
+
+
+
+
+
+
+	
